@@ -15,23 +15,19 @@ from sklearn.preprocessing import MinMaxScaler
 import pytz
 import requests
 
-# Title
 st.title("📈 Bitcoin OHLCV and Predictive Analytics Dashboard")
 
-# Sidebar
 st.sidebar.header("Settings")
 ticker = st.sidebar.text_input("Enter Ticker Symbol", "BTC-USD")
 start_date = st.sidebar.date_input("Start Date", pd.to_datetime("2014-12-17"))
 end_date = st.sidebar.date_input("End Date", pd.to_datetime("2025-09-14"))
 
-# Timezone-localize dates (New York)
 tz = pytz.timezone("America/New_York")
 start_dt = tz.localize(pd.to_datetime(start_date))
 end_dt = tz.localize(pd.to_datetime(end_date))
 
 st.write(f"Fetching data for **{ticker}** from {start_date} to {end_date}...")
 
-# Download with fallback
 def fetch_yf(ticker, start, end):
     try:
         df = yf.download(ticker, start=start, end=end)
@@ -46,18 +42,26 @@ def fetch_coingecko():
     st.info("Attempting fallback: CoinGecko API.")
     url = "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart"
     params = {"vs_currency": "usd", "days": "max"}
-    r = requests.get(url, params=params)
-    if r.status_code == 200:
-        data = r.json()
-        df_price = pd.DataFrame(data['prices'], columns=['Date', 'Close'])
-        df_price['Date'] = pd.to_datetime(df_price['Date'], unit='ms')
-        df = df_price.set_index('Date')
-        # simple OHLCV stub (just Close for fallback)
-        for col in ['Open', 'High', 'Low', 'Adj Close', 'Volume']:
-            df[col] = df['Close']
-        return df[(df.index >= start_date) & (df.index <= end_date)]
-    else:
-        st.error("CoinGecko fetch failed!")
+    headers = {"User-Agent": "Mozilla/5.0"}  # Solve API block!
+    try:
+        r = requests.get(url, params=params, headers=headers, timeout=15)
+        st.write(f"Coingecko response status: {r.status_code}")
+        if r.status_code == 200:
+            data = r.json()
+            df_price = pd.DataFrame(data['prices'], columns=['Date', 'Close'])
+            df_price['Date'] = pd.to_datetime(df_price['Date'], unit='ms')
+            df = df_price.set_index('Date')
+            # Fill other columns with 'Close' data as stub
+            for col in ['Open', 'High', 'Low', 'Adj Close', 'Volume']:
+                df[col] = df['Close']
+            # Restrict to selected date
+            df = df[(df.index >= pd.to_datetime(start_date)) & (df.index <= pd.to_datetime(end_date))]
+            return df
+        else:
+            st.error(f"CoinGecko fetch failed! Status: {r.status_code} Reason: {r.reason}")
+            return pd.DataFrame()
+    except Exception as e:
+        st.error(f"CoinGecko fetch error: {e}")
         return pd.DataFrame()
 
 ohlcv = fetch_yf(ticker, start_dt, end_dt)
@@ -67,19 +71,16 @@ if ohlcv.empty:
 if ohlcv.empty:
     st.error("No data fetched! Please check the ticker symbol or date range.")
 else:
-    # Flatten MultiIndex
     if isinstance(ohlcv.columns, pd.MultiIndex):
         ohlcv.columns = ohlcv.columns.get_level_values(0)
-    # Ensure columns
     for col in ['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']:
         if col in ohlcv.columns and isinstance(ohlcv[col], pd.Series):
             ohlcv[col] = pd.to_numeric(ohlcv[col], errors='coerce')
     ohlcv = ohlcv.dropna(subset=['Close'])
-    
+
     st.subheader("📊 Data Preview")
     st.dataframe(ohlcv.head())
 
-    # OHLCV Charts
     st.subheader("📉 OHLCV Charts")
     fig, axes = plt.subplots(5, 1, figsize=(12, 16), sharex=True)
     for idx, col in enumerate(['Open', 'High', 'Low', 'Close', 'Volume']):
@@ -96,7 +97,6 @@ else:
     plt.tight_layout()
     st.pyplot(fig)
 
-    # Predictive Modeling
     st.subheader("🤖 Model Predictions")
     try:
         model = load_model("model.keras")
@@ -127,7 +127,6 @@ else:
         ax1.set_ylabel("Close Price", fontsize=14)
         ax1.legend(); ax1.grid(alpha=0.3)
         st.pyplot(fig1)
-        # Future Predictions
         future_input = scaled_data[-base_days:].reshape(1, base_days, 1)
         future_predictions = []
         for _ in range(10):
@@ -147,7 +146,6 @@ else:
     except Exception as e:
         st.error(f"❌ Prediction failed: {e}")
 
-    # Candlestick Chart
     st.subheader("🕯️ Candlestick Chart")
     my_style = mpf.make_mpf_style(
         base_mpf_style="charles",
