@@ -61,8 +61,8 @@ Push repo to GitHub
 
 Create a new app on Streamlit Cloud, linking this repo and setting app2.py as the entry point
 
-✨ Example
-![dashboard-screenshot]( Add your screenshot file if available -->
+<img width="1874" height="652" alt="image" src="https://github.com/user-attachments/assets/f6ee4ed9-c3af-4b20-a0cf-077651342df8" />
+
 
 ⚠️ Troubleshooting & Cloud Deployment
 If you see No data or too little data or CoinGecko fetch failed, check your API/network. This is handled with robust fallback logic.
@@ -74,7 +74,7 @@ Model predictions require a compatible model.keras trained on comparable data (s
 On Streamlit Cloud, the CoinGecko API fetch uses a user-agent header for compatibility.
 
 🌍 Credits & Contributors
-Developed by [Your Name/Org].
+Developed by Anuradha Menon.
 Inspired by analysis, open APIs, and the Streamlit data app ecosystem.
 
 📜 License
@@ -86,5 +86,3 @@ Use GitHub Issues for problems and feature requests.
 
 📣 Contact
 Questions or want to collaborate? Open an issue or reach out via email/GitHub profile.
-
-
