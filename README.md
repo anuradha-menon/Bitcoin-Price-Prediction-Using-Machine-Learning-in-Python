@@ -1,4 +1,5 @@
- 📈 Bitcoin OHLCV and Predictive Analytics Dashboard
+ 📈 Bitcoin OHLCV and Predictive Analytics Dashboard - https://bitcoin-price-prediction-using-machine-learning-in-python-fgh2.streamlit.app/
+ 
 A full-featured Streamlit web app for visualizing Bitcoin OHLCV price data and running deep learning-based price prediction. Fetches data reliably using yfinance and auto-fallbacks to the CoinGecko API (with user-agent workaround) for robust deployment on Streamlit Cloud or your local machine.
 
 🚀 Features
@@ -83,4 +84,5 @@ Use GitHub Issues for problems and feature requests.
 
 📣 Contact
 Questions or want to collaborate? Open an issue or reach out via email/GitHub profile.
+
 
