@@ -61,9 +61,6 @@ Push repo to GitHub
 
 Create a new app on Streamlit Cloud, linking this repo and setting app2.py as the entry point
 
-<img width="1874" height="652" alt="image" src="https://github.com/user-attachments/assets/f6ee4ed9-c3af-4b20-a0cf-077651342df8" />
-
-
 ⚠️ Troubleshooting & Cloud Deployment
 If you see No data or too little data or CoinGecko fetch failed, check your API/network. This is handled with robust fallback logic.
 
@@ -86,3 +83,4 @@ Use GitHub Issues for problems and feature requests.
 
 📣 Contact
 Questions or want to collaborate? Open an issue or reach out via email/GitHub profile.
+
